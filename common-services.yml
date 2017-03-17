@@ -6,9 +6,19 @@ services:
     volumes:
     - tmp:/tmp
     - ngx:/etc/nginx/www
-    - ${LOG_PATH}/nginx:/var/log/nginx
 
   php:
     image: php:5.6-fpm
     volumes:
     - ngx:/etc/nginx/www
+    environment:
+    - LOGSPOUT=ignore
+
+  hub:
+    environment:
+    - LOGSPOUT=ignore
+    volumes: 
+    - ${SSL_HOME}:/etc/nginx/ssl
+    - /etc/letsencrypt:/etc/letsencrypt
+    - /tmp:/usr/share/nginx/html
+    - ./conf.d:/usr/share/nginx/conf.d

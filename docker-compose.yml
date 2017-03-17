@@ -3,16 +3,15 @@ version: "2"
 services:
   hub:
     image: ${REGISTRY_URL}/${PROJECT_NAME}
+    extends: 
+      file: common-services.yml
+      service: hub
     ports:
     - "80:80"
     - "443:443"
     networks:
     - hub_net
-    volumes: 
-    - ${SSL_HOME}:/etc/nginx/ssl
-    - /etc/letsencrypt:/etc/letsencrypt
-    - ./conf.d:/usr/share/nginx/conf.d
-    restart: "unless-stopped"
+    restart: "on-failure"
 
   upload:
     extends: 
@@ -20,7 +19,7 @@ services:
       service: upload
     networks:
     - hub_net
-    restart: "unless-stopped"
+    restart: "on-failure"
 
   php:
     extends: 
@@ -28,7 +27,7 @@ services:
       service: php
     networks:
     - hub_net
-    restart: "unless-stopped"
+    restart: "on-failure"
 
 networks: 
   hub_net:
@@ -37,3 +36,4 @@ networks:
 volumes: 
   ngx:
   tmp:
+    external: true
