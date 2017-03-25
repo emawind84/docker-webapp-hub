@@ -13,21 +13,21 @@ services:
     - hub_net
     restart: "unless-stopped"
 
-  upload:
-    extends: 
-      file: common-services.yml
-      service: upload
-    networks:
-    - hub_net
-    restart: "unless-stopped"
+#   upload:
+#     extends: 
+#       file: common-services.yml
+#       service: upload
+#     networks:
+#     - hub_net
+#     restart: "unless-stopped"
 
-  php:
-    extends: 
-      file: common-services.yml
-      service: php
-    networks:
-    - hub_net
-    restart: "unless-stopped"
+#   php:
+#     extends: 
+#       file: common-services.yml
+#       service: php
+#     networks:
+#     - hub_net
+#     restart: "unless-stopped"
 
 networks: 
   hub_net:

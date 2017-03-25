@@ -12,19 +12,19 @@ services:
     networks:
     - hub_net
 
-  upload:
-    extends: 
-      file: common-services.yml
-      service: upload
-    networks:
-    - hub_net
+#   upload:
+#     extends: 
+#       file: common-services.yml
+#       service: upload
+#     networks:
+#     - hub_net
 
-  php:
-    extends: 
-      file: common-services.yml
-      service: php
-    networks:
-    - hub_net
+#   php:
+#     extends: 
+#       file: common-services.yml
+#       service: php
+#     networks:
+#     - hub_net
 
 networks: 
   hub_net:
