@@ -2,6 +2,14 @@
 
 set -e
 
+DOCKER_COMPOSE_VERSION="1.11.2"
+CONF_ARG="-f docker-compose.yml"
+HUB_NETWORK_NAME="hub_net"
+HUB_NETWORK_ID="$(docker network ls --format {{.ID}} --filter name=$HUB_NETWORK_NAME)"
+HUB_TEMP_VOLUME_NAME="tmp"
+SCRIPT_BASE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
+cd "$SCRIPT_BASE_PATH"
+
 PROJECT_NAME="$PROJECT_NAME"
 if [ -z "$PROJECT_NAME" ]; then
     PROJECT_NAME="$(cat .env | awk 'BEGIN { FS="="; } /^PROJECT_NAME/ {sub(/\r/,"",$2); print $2;}')"
@@ -11,13 +19,11 @@ if [ -z "$REGISTRY_URL" ]; then
     REGISTRY_URL="$(cat .env | awk 'BEGIN { FS="="; } /^REGISTRY_URL/ {sub(/\r/,"",$2); print $2;}')"
 fi
 
-CONF_ARG="-f docker-compose.yml"
-HUB_NETWORK_NAME="hub_net"
-HUB_NETWORK_ID="$(docker network ls --format {{.ID}} --filter name=$HUB_NETWORK_NAME)"
-HUB_TEMP_VOLUME_NAME="tmp"
-
-SCRIPT_BASE_PATH=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
-cd "$SCRIPT_BASE_PATH"
+if ! command -v docker-compose >/dev/null 2>&1; then
+    sudo curl -L "https://github.com/docker/compose/releases/download/$DOCKER_COMPOSE_VERSION/docker-compose-$(uname -s)-$(uname -m)" \
+    -o /usr/local/bin/docker-compose
+    sudo chmod +x /usr/local/bin/docker-compose
+fi
 
 on_run() {
     if [ $(docker volume ls -q | grep -e "^${HUB_TEMP_VOLUME_NAME}$" | wc -l) -eq "0" ]
@@ -48,6 +54,7 @@ echo "  up              Start the services"
 echo "  down            Stop the services"
 echo "  ps              Show the status of the services"
 echo "  logs            Follow the logs on console"
+echo "  login           Log in to a Docker registry"
 echo "  remove-all      Remove all containers"
 echo "  stop-all        Stop all containers running"
 echo "  build           Build the image"
@@ -82,7 +89,11 @@ done
 echo "Arguments: $CONF_ARG"
 echo "Command: $@"
 
-if [ "$1" == "up" ]; then
+if [ "$1" == "login" ]; then
+    docker login $REGISTRY_URL
+    exit 0
+
+elif [ "$1" == "up" ]; then
     on_run
     docker-compose $CONF_ARG pull
     docker-compose $CONF_ARG build --pull
